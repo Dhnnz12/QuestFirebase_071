@@ -1,4 +1,4 @@
-package com.example.questfirebase_071.ui.theme.route
+package com.example.questfirebase_071.ui.route
 
 import com.example.questfirebase_071.R
 

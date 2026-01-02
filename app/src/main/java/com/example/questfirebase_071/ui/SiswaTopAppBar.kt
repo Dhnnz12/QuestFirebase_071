@@ -1,4 +1,4 @@
-package com.example.questfirebase_071.ui.theme
+package com.example.questfirebase_071.ui
 
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
