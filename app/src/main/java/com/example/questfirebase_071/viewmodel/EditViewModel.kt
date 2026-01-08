@@ -9,6 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.questfirebase_071.model.DetailSiswa
 import com.example.questfirebase_071.model.UIStateSiswa
+import com.example.questfirebase_071.model.toDataSiswa
+import com.example.questfirebase_071.model.toUiStateSiswa
 import com.example.questfirebase_071.repository.RepositorySiswa
 import com.example.questfirebase_071.ui.route.DestinasiDetail
 import kotlinx.coroutines.launch
@@ -24,7 +26,7 @@ class EditViewModel(savedStateHandle: SavedStateHandle, private val repositorySi
     init {
         viewModelScope.launch {
             uiStateSiswa = repositorySiswa.getSatuSiswa(idSiswa)!!
-                .toUIStateSiswa(true)
+                .toUiStateSiswa(true)
         }
     }
 
