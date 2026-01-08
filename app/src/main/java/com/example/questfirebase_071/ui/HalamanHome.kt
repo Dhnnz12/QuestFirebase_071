@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,11 +49,11 @@ import com.example.questfirebase_071.viewmodel.provider.PenyediaVM
 @Composable
 fun HomeScreen(
     navigateToItemEntry: () -> Unit,
-    navigateToItemUpdate: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    navigateToItemUpdate: (Int) -> Unit,
     viewModel: HomeVM = viewModel(factory = PenyediaVM.Factory)
 ){
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -66,22 +67,20 @@ fun HomeScreen(
             FloatingActionButton(
                 onClick = navigateToItemEntry,
                 shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(dimensionResource(R.dimen.padding_large))
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large))
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.entry_siswa)
                 )
             }
-        }
+        },
     ) { innerPadding ->
         HomeBody(
             statusUiSiswa = viewModel.statusUiSiswa,
             onSiswaClick = navigateToItemUpdate,
-            retryAction = viewModel::loadSiswa,
-            modifier = modifier
-                .padding(innerPadding)
-                .fillMaxSize()
+            modifier = modifier,
+            contentPadding = innerPadding,
         )
     }
 }
@@ -90,27 +89,28 @@ fun HomeScreen(
 fun HomeBody(
     statusUiSiswa: StatusUiSiswa,
     onSiswaClick: (Int) -> Unit,
-    retryAction: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
 ){
-    Column(horizontalAlignment = Alignment.CenterHorizontally,
-        modifier =  modifier) {
-        when(statusUiSiswa){
-            is StatusUiSiswa.Loading -> LoadingScreen()
-            is StatusUiSiswa.Success -> DaftarSiswa(itemSiswa = statusUiSiswa.siswa,
-                onSiswaClick = {
-                    onSiswaClick(it.id.toInt())
-                })
-            is StatusUiSiswa.Error -> ErrorScreen(
-                retryAction,
-                modifier = modifier.fillMaxSize()
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier,
+    ) {
+        when (statusUiSiswa) {
+            is StatusUiSiswa.Loading -> OnLoading(modifier = modifier.fillMaxSize())
+            is StatusUiSiswa.Success -> DaftarSiswa(
+                daftarSiswa = statusUiSiswa.siswa,
+                onItemClick = { onSiswaClick(it.id.toInt()) },
+                modifier = modifier.fillMaxSize(),
+                contentPadding = contentPadding
             )
+            is StatusUiSiswa.Error -> OnError(modifier = modifier.fillMaxSize())
         }
     }
 }
 
 @Composable
-fun LoadingScreen(modifier: Modifier = Modifier){
+fun OnLoading(modifier: Modifier = Modifier) {
     Image(
         modifier = modifier.size(200.dp),
         painter = painterResource(R.drawable.loading_img),
@@ -119,60 +119,66 @@ fun LoadingScreen(modifier: Modifier = Modifier){
 }
 
 @Composable
-fun ErrorScreen(retryAction: () -> Unit, modifier: Modifier = Modifier){
+fun OnError(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = stringResource(R.string.gagal), modifier = Modifier.padding(16.dp))
-        Button(onClick = retryAction) {
-            Text(stringResource(R.string.retry))
-        }
+        Image(
+            painter = painterResource(id = R.drawable.ic_connection_error),
+            contentDescription = ""
+        )
+        Text(text = stringResource(R.string.loading_failed), modifier = Modifier.padding(16.dp))
     }
 }
 
 @Composable
 fun DaftarSiswa(
-    itemSiswa: List<Siswa>,
-    onSiswaClick:(Siswa) -> Unit,
-    modifier: Modifier = Modifier
-){
-    LazyColumn(modifier = Modifier) {
-        items(items = itemSiswa, key = {it.id}){
-                person ->
-            ItemSiswa(
-                siswa = person,
+    daftarSiswa: List<Siswa>,
+    onItemClick: (Siswa) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = contentPadding
+    ) {
+        items(items = daftarSiswa, key = { it.id }) { siswa ->
+            SiswaCard(
+                siswa = siswa,
                 modifier = Modifier
-                    .padding(dimensionResource(R.dimen.padding_small))
-                    .clickable{onSiswaClick(person)}
+                    .padding(dimensionResource(id = R.dimen.padding_small))
+                    .clickable { onItemClick(siswa) }
             )
         }
     }
 }
 
 @Composable
-fun ItemSiswa(
+fun SiswaCard(
     siswa: Siswa,
     modifier: Modifier = Modifier
-){
+) {
     Card(
         modifier = modifier,
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
-            modifier = Modifier.padding(dimensionResource(R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.padding_small))
+            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
         ) {
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 Text(
                     text = siswa.nama,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
                 )
                 Spacer(Modifier.weight(1f))
                 Icon(
                     imageVector = Icons.Default.Phone,
-                    contentDescription = null
+                    contentDescription = null,
                 )
                 Text(
                     text = siswa.telpon,
