@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.questfirebase_071.ui.route.DestinasiEdit
+import com.example.questfirebase_071.viewmodel.EditViewModel
 import com.example.questfirebase_071.viewmodel.provider.PenyediaVM
 import kotlinx.coroutines.launch
 
@@ -22,7 +23,7 @@ fun EditSiswaScreen(
 ) {
     Scaffold(
         topBar = {
-            SiswaTopAppBar(
+            SiswaTopBar(
                 title = stringResource(DestinasiEdit.titleRes),
                 canNavigateBack = true,
                 navigateUp = onNavigateUp
